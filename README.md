@@ -1,7 +1,7 @@
 # iter
 An iterator library for Zig.
 
-This started out as a toy project to gain more familiarity with Zig, and when I initially started on this project, I thought I would be finished within a day, and ended up spending more than a week on it.
+This started out as a toy project to gain more familiarity with Zig, and when I initially started on this project, I thought I would be finished within a day, and ended up spending more than a week on it. The interface in this library is the exact same as the interface on the Rust Iterator trait, and all the functions behave in the same way.
 
 ## Goals
 - [x] iterator chain calling
@@ -9,6 +9,8 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [x] zero heap allocation
 - [x] simple interface
 - [x] not too much internal boilerplate
+- [ ] implement the functions of the Rust Iterator trait where applicable
+  - Functions such as `.cloned()` or `.clone()` do not really make sense in the context of Zig, as it does not have a concrete way to determine whether or not something can be cloned
 
 ## Stable
 - [x] all
