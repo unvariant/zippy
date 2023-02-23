@@ -88,3 +88,8 @@ test "testing chain" {
     numbers.deinit();
     _ = GeneralPurposeAllocator.detectLeaks();
 }
+
+test "testing count" {
+    var count = Range.init(0, 5).count();
+    try expectEqual(count, 5);
+}

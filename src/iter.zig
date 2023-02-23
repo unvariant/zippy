@@ -111,6 +111,15 @@ pub fn Iterator(comptime S: type) type {
             return list;
         }
 
+        pub fn count(self: Self) usize {
+            return self.reduce(@as(usize, 0), struct {
+                fn fun (acc: usize, item: Item) usize {
+                    _ = item;
+                    return acc + 1;
+                }
+            }.fun);
+        }
+
         pub fn by_ref(self: *Self) Ref(Self) {
             return Ref(Self).init(self);
         }

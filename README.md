@@ -21,7 +21,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] cmp
 - [x] collect
 - [ ] copied
-- [ ] count
+- [x] count
 - [ ] enumerate
 - [ ] eq
 - [x] filter
