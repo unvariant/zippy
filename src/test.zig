@@ -4,6 +4,7 @@ const assert = std.debug.assert;
 const testing = std.testing;
 const expectEqualSlices = testing.expectEqualSlices;
 const expectEqual = testing.expectEqual;
+const Tuple = std.meta.Tuple;
 
 const utils = @import("utils.zig");
 const Range = utils.Range;
@@ -92,4 +93,18 @@ test "testing chain" {
 test "testing count" {
     var count = Range.init(0, 5).count();
     try expectEqual(count, 5);
+}
+
+test "testing enumerate" {
+    const T = Tuple(&.{usize, usize});
+    var numbers = try Range.init(0, 5).enumerate().collect(allocator);
+    try expectEqualSlices(T, numbers.items, &[_]T{
+        .{0, 0},
+        .{1, 1},
+        .{2, 2},
+        .{3, 3},
+        .{4, 4},
+    });
+    numbers.deinit();
+    _ = GeneralPurposeAllocator.detectLeaks();
 }

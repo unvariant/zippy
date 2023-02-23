@@ -54,6 +54,10 @@ pub fn Iterator(comptime S: type) type {
             return Chain(Self, @TypeOf(other)).init(self, other);
         }
 
+        pub fn enumerate(self: Self) Enumerate(Self) {
+            return Enumerate(Self).init(self);
+        }
+
         pub fn reduce(self: Self, init: anytype, comptime fun: fn(@TypeOf(init), Item)@TypeOf(init)) @TypeOf(init) {
             var acc = init;
             var iter = deref(self);
@@ -347,5 +351,39 @@ fn Ref(comptime Iter: type) type {
         }
 
         pub usingnamespace Iterator(*Self);
+    };
+}
+
+fn Enumerate(comptime Iter: type) type {
+    return struct {
+        iter: Iter,
+        index: usize,
+
+        const Self = @This();
+        const Item = Tuple(&.{usize, Iter.Item});
+
+        pub fn init(iter: Iter) Self {
+            return .{ .iter = iter, .index = 0, };
+        }
+
+        pub fn nextFn(self: Self) Tuple(&.{?Item, Self}) {
+            var iter = self.iter;
+            var entry = iter.nextFn();
+            if (entry[0]) |item| {
+                return .{
+                    .{
+                        self.index,
+                        item,
+                    },
+                    .{
+                        .iter = entry[1],
+                        .index = self.index + 1,
+                    },
+                };
+            }
+            return .{ null, self, };
+        }
+
+        pub usingnamespace Iterator(Self);
     };
 }

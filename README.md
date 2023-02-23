@@ -22,7 +22,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [x] collect
 - [ ] copied
 - [x] count
-- [ ] enumerate
+- [x] enumerate
 - [ ] eq
 - [x] filter
 - [ ] filter_map
