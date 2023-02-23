@@ -5,14 +5,14 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 
 ## Goals
 - [x] iterator chain calling
-    - ```it.take(10).chain(other).drop(3)```
+    - ```it.take(10).chain(other).skip(3)```
 - [x] zero heap allocation
 - [x] simple interface
 - [x] not too much internal boilerplate
 - [ ] implement the functions of the Rust Iterator trait where applicable
   - Functions such as `.cloned()` or `.clone()` do not really make sense in the context of Zig, as it does not have a concrete way to determine whether or not something can be cloned
 
-## Stable
+## Iterator
 - [x] all
 - [x] any
 - [x] by_ref
@@ -70,5 +70,13 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] unzip
 - [ ] zip
 
+## iter
+- [ ] empty
+- [ ] from_fn
+- [ ] once
+- [ ] once_with
+- [ ] repeat
+- [ ] repeat_with
+
 ## Performance
-TODO
+I have not tried to profile this library at all (although I am planning to soon I swear), so I can not make any guarantees about performance.
