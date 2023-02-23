@@ -124,6 +124,14 @@ pub fn Iterator(comptime S: type) type {
             }.fun);
         }
 
+        pub fn last(self: Self) ?Item {
+            return self.fold(struct {
+                fn fun(_: Item, item: Item) Item {
+                    return item;
+                }
+            }.fun);
+        }
+
         pub fn by_ref(self: *Self) Ref(Self) {
             return Ref(Self).init(self);
         }

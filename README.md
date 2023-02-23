@@ -36,7 +36,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] ge
 - [ ] gt
 - [ ] inspect
-- [ ] last
+- [x] last
 - [ ] le
 - [ ] lt
 - [x] map

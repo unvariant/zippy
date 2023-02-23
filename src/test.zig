@@ -108,3 +108,8 @@ test "testing enumerate" {
     numbers.deinit();
     _ = GeneralPurposeAllocator.detectLeaks();
 }
+
+test "testing last" {
+    var last = Range.init(0, 5).last();
+    try expectEqual(last, 4);
+}
