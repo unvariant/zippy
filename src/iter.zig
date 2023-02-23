@@ -132,6 +132,16 @@ pub fn Iterator(comptime S: type) type {
             }.fun);
         }
 
+        pub fn first(self: Self) ?Item {
+            var iter = self;
+            var entry = iter.nextFn();
+            return entry[0];
+        }
+
+        pub fn nth(self: Self, amount: usize) ?Item {
+            return self.skip(amount).first();
+        }
+
         pub fn by_ref(self: *Self) Ref(Self) {
             return Ref(Self).init(self);
         }

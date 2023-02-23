@@ -113,3 +113,13 @@ test "testing last" {
     var last = Range.init(0, 5).last();
     try expectEqual(last, 4);
 }
+
+test "testing first" {
+    var first = Range.init(0, 5).first();
+    try expectEqual(first, 0);
+}
+
+test "testing nth" {
+    var nth = Range.init(0, 5).nth(2);
+    try expectEqual(nth, 2);
+}

@@ -48,7 +48,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] min_by
 - [ ] min_by_key
 - [ ] ne
-- [ ] nth
+- [x] nth
 - [ ] partial_cmp
 - [ ] partition
 - [ ] peekable
