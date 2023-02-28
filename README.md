@@ -4,13 +4,8 @@ An iterator library for Zig.
 ## Interface
 This library shares the same interface with the Rust Iterator trait and iter crate. The behavior differs slightly due to restrictions in Zig. If you want an iterator to be still usable after a consuming function you must call `.byRef()` on it first to borrow the iterator by reference. See [examples](./examples) for a more in depth explanation.
 
-## Goals
-- [x] iterator chain calling
-    - ```it.take(10).chain(other).skip(3)```
-- [x] zero heap allocation
-- [x] simple interface
-- [x] not too much internal boilerplate
-- [ ] implement the functions of the Rust Iterator trait
+## Zig Version
+Currently the library supports `0.10.0`, and I will update it to use `0.11.0` once it becomes stable.
 
 ## Iterator
 - [x] all
@@ -71,18 +66,26 @@ This library shares the same interface with the Rust Iterator trait and iter cra
 - [x] zip
 
 ## iter
-- [ ] empty
+- [x] empty
 - [ ] from_fn
-- [ ] once
+- [x] once
 - [ ] once_with
-- [ ] repeat
+- [x] repeat
 - [ ] repeat_with
 
 ## Custom Iterator methods
-- first
+These are methods that are not in Rust, but I feel should be included for Zig.
+
+### Drop methods
+There exists a `Drop` variant of every iterator method that could possibly discard data. They take an extra argument, which is a user defined destructor that runs on any iterator elements that would be discarded. Note that if an element is not evaluated the destructor will not be called on that element.
+- [ ] filterDrop
+- [ ] filterMapDrop
+- [ ] skipDrop
+- [ ] skipWhileDrop
+
+### Misc
+- [x] first
   - consumes the iterator, and returns the first element
-- filterDrop
-  - filters the iterator using a predicate, and calls a user passed destructor on elements that are filtered out
 
 ## Performance
 I have not attempted to profile this library at all (although I am planning to soon), so I can not make any guarantees about performance.

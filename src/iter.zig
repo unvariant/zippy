@@ -1,15 +1,20 @@
 const Iterator = @import("iterator.zig").Iterator;
 
-pub fn empty (comptime T: type) Empty(T) {
+pub fn empty(comptime T: type) Empty(T) {
     return .{};
 }
 
-pub fn once (item: anytype) Once(@TypeOf(item)) {
-    return .{ .item = item, .done = false, };
+pub fn once(item: anytype) Once(@TypeOf(item)) {
+    return .{
+        .item = item,
+        .done = false,
+    };
 }
 
-pub fn repeat (item: anytype) Repeat(@TypeOf(item)) {
-    return .{ .item = item, };
+pub fn repeat(item: anytype) Repeat(@TypeOf(item)) {
+    return .{
+        .item = item,
+    };
 }
 
 fn Empty(comptime T: type) type {
@@ -17,7 +22,7 @@ fn Empty(comptime T: type) type {
         const Self = @This();
         pub const Item = T;
 
-        pub fn next (self: *Self) ?Item {
+        pub fn next(self: *Self) ?Item {
             _ = self;
             return null;
         }
@@ -34,7 +39,7 @@ fn Once(comptime T: type) type {
         const Self = @This();
         pub const Item = T;
 
-        pub fn next (self: *Self) ?Item {
+        pub fn next(self: *Self) ?Item {
             if (self.done) {
                 return null;
             }
@@ -53,7 +58,7 @@ fn Repeat(comptime T: type) type {
         const Self = @This();
         pub const Item = T;
 
-        pub fn next (self: *Self) ?Item {
+        pub fn next(self: *Self) ?Item {
             return self.item;
         }
 

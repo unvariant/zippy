@@ -28,53 +28,83 @@ pub fn Iterator(comptime S: type) type {
     const Item = Self.Item;
 
     return struct {
-        pub const Predicate = fn(Item)bool;
+        pub const Predicate = fn (Item) bool;
 
         pub fn map(self: Self, comptime fun: anytype) Map(Self, fun) {
-            return .{ .iter = self, };
+            return .{
+                .iter = self,
+            };
         }
 
         pub fn filter(self: Self, comptime predicate: Predicate) Filter(Self, predicate) {
-            return .{ .iter = self, };
+            return .{
+                .iter = self,
+            };
         }
 
         pub fn take(self: Self, amount: usize) Take(Self) {
-            return .{ .iter = self, .amount = amount, };
+            return .{
+                .iter = self,
+                .amount = amount,
+            };
         }
 
         pub fn skip(self: Self, amount: usize) Skip(Self) {
-            return .{ .iter = self, .amount = amount, };
+            return .{
+                .iter = self,
+                .amount = amount,
+            };
         }
 
         pub fn chain(self: Self, other: anytype) Chain(Self, @TypeOf(other)) {
-            return .{ .fst = self, .snd = other, };
+            return .{
+                .fst = self,
+                .snd = other,
+            };
         }
 
         pub fn enumerate(self: Self) Enumerate(Self) {
-            return .{ .iter = self, .index = 0, };
+            return .{
+                .iter = self,
+                .index = 0,
+            };
         }
 
         pub fn zip(self: Self, other: anytype) Zip(Self, @TypeOf(other)) {
-            return .{ .fst = self, .snd = other, };
+            return .{
+                .fst = self,
+                .snd = other,
+            };
         }
 
         pub fn stepBy(self: Self, step: usize) StepBy(Self) {
-            return .{ .iter = self, .step = step, };
+            return .{
+                .iter = self,
+                .step = step,
+            };
         }
 
         pub fn filterMap(self: Self, predicate: anytype) FilterMap(Self, predicate) {
-            return .{ .iter = self, };
+            return .{
+                .iter = self,
+            };
         }
 
         pub fn takeWhile(self: Self, comptime predicate: Predicate) TakeWhile(Self, predicate) {
-            return .{ .iter = self, .done = false, };
+            return .{
+                .iter = self,
+                .done = false,
+            };
         }
 
         pub fn skipWhile(self: Self, comptime predicate: Predicate) SkipWhile(Self, predicate) {
-            return .{ .iter = self, .done = false, };
+            return .{
+                .iter = self,
+                .done = false,
+            };
         }
 
-        pub fn reduce(self: Self, init: anytype, comptime fun: fn(@TypeOf(init), Item)@TypeOf(init)) @TypeOf(init) {
+        pub fn reduce(self: Self, init: anytype, comptime fun: fn (@TypeOf(init), Item) @TypeOf(init)) @TypeOf(init) {
             var acc = init;
             var iter = deref(self);
             while (iter.next()) |item| {
@@ -83,7 +113,7 @@ pub fn Iterator(comptime S: type) type {
             return acc;
         }
 
-        pub fn fold(self: Self, comptime fun: fn(Item, Item)Item) ?Item {
+        pub fn fold(self: Self, comptime fun: fn (Item, Item) Item) ?Item {
             var iter = deref(self);
             if (iter.next()) |item| {
                 return self.reduce(item, fun);
@@ -93,7 +123,7 @@ pub fn Iterator(comptime S: type) type {
 
         pub fn find(self: Self, comptime predicate: Predicate) ?Item {
             const Closure = struct {
-                fn fun (item: Item) bool {
+                fn fun(item: Item) bool {
                     return !predicate(item);
                 }
             };
@@ -153,7 +183,7 @@ pub fn Iterator(comptime S: type) type {
 
         pub fn count(self: Self) usize {
             return self.reduce(@as(usize, 0), struct {
-                fn fun (acc: usize, item: Item) usize {
+                fn fun(acc: usize, item: Item) usize {
                     _ = item;
                     return acc + 1;
                 }
@@ -179,7 +209,9 @@ pub fn Iterator(comptime S: type) type {
         }
 
         pub fn byRef(self: *Self) Ref(Self) {
-            return .{ .iter = self, };
+            return .{
+                .iter = self,
+            };
         }
     };
 }
@@ -315,7 +347,7 @@ fn Enumerate(comptime Iter: type) type {
         index: usize,
 
         const Self = @This();
-        const Item = Tuple(&.{usize, Iter.Item});
+        const Item = Tuple(&.{ usize, Iter.Item });
 
         pub fn next(self: *Self) ?Item {
             if (self.iter.next()) |item| {
@@ -335,12 +367,15 @@ fn Zip(comptime Fst: type, comptime Snd: type) type {
         snd: Snd,
 
         const Self = @This();
-        const Item = Tuple(&.{Fst.Item, Snd.Item});
+        const Item = Tuple(&.{ Fst.Item, Snd.Item });
 
         pub fn next(self: *Self) ?Item {
             if (self.fst.next()) |a| {
                 if (self.snd.next()) |b| {
-                    return .{ a, b, };
+                    return .{
+                        a,
+                        b,
+                    };
                 }
             }
             return null;
