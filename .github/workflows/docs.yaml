@@ -3,7 +3,7 @@ name: Zig Documentation Build
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
