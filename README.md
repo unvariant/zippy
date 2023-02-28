@@ -1,7 +1,8 @@
-# iter
+# zippy
 An iterator library for Zig.
 
-This started out as a toy project to gain more familiarity with Zig, and when I initially started on this project, I thought I would be finished within a day, and ended up spending more than a week on it. The interface in this library is the exact same as the interface on the Rust Iterator trait, and all the functions behave in the same way.
+## Interface
+This library shares the same interface with the Rust Iterator trait and iter crate. The behavior differs slightly due to restrictions in Zig. If you want an iterator to be still usable after a consuming function you must call `.byRef()` on it first to borrow the iterator by reference. See [examples](./examples) for a more in depth explanation.
 
 ## Goals
 - [x] iterator chain calling
@@ -9,8 +10,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [x] zero heap allocation
 - [x] simple interface
 - [x] not too much internal boilerplate
-- [ ] implement the functions of the Rust Iterator trait where applicable
-  - Functions such as `.cloned()` or `.clone()` do not really make sense in the context of Zig, as it does not have a concrete way to determine whether or not something can be cloned
+- [ ] implement the functions of the Rust Iterator trait
 
 ## Iterator
 - [x] all
@@ -25,8 +25,8 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [x] enumerate
 - [ ] eq
 - [x] filter
-- [ ] filter_map
-- [ ] find
+- [x] filter_map
+- [x] find
 - [ ] find_map
 - [ ] flat_map
 - [ ] flatten
@@ -52,7 +52,7 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] partial_cmp
 - [ ] partition
 - [ ] peekable
-- [ ] position
+- [x] position
 - [ ] product
 - [x] reduce
 - [ ] rev
@@ -60,15 +60,15 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] scan
 - [ ] size_hint
 - [x] skip
-- [ ] skip_while
-- [ ] step_by
-- [x] sum
+- [x] skip_while
+- [x] step_by
+- [ ] sum
 - [x] take
-- [ ] take_while
+- [x] take_while
 - [ ] try_fold
 - [ ] try_for_each
 - [ ] unzip
-- [ ] zip
+- [x] zip
 
 ## iter
 - [ ] empty
@@ -78,5 +78,11 @@ This started out as a toy project to gain more familiarity with Zig, and when I 
 - [ ] repeat
 - [ ] repeat_with
 
+## Custom Iterator methods
+- first
+  - consumes the iterator, and returns the first element
+- filterDrop
+  - filters the iterator using a predicate, and calls a user passed destructor on elements that are filtered out
+
 ## Performance
-I have not tried to profile this library at all (although I am planning to soon I swear), so I can not make any guarantees about performance.
+I have not attempted to profile this library at all (although I am planning to soon), so I can not make any guarantees about performance.
