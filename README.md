@@ -17,6 +17,7 @@ Currently the library supports `0.10.0`, and I will update it to use `0.11.0` on
 - [x] collect
 - [ ] copied
 - [x] count
+- [ ] cycle
 - [x] enumerate
 - [ ] eq
 - [x] filter

@@ -7,6 +7,19 @@ const Tuple = meta.Tuple;
 const Allocator = mem.Allocator;
 const ArrayList = std.ArrayList;
 
+fn ReturnType(comptime val: anytype) type {
+    const vtype = @TypeOf(val);
+    const vinfo = @typeInfo(vtype);
+    if (vinfo != .Fn) {
+        @compileError(@typeName(vtype) ++ " is not a function");
+    }
+    return vinfo.Fn.return_type orelse @compileError(@typeName(vtype) ++ " does not have a return value");
+}
+
+fn ParamTypes(comptime val: anytype) type {
+    return @TypeOf(val);
+}
+
 fn Deref(comptime T: type) type {
     if (comptime trait.isSingleItemPtr(T)) {
         return @typeInfo(T).Pointer.child;
@@ -101,6 +114,13 @@ pub fn Iterator(comptime S: type) type {
             return .{
                 .iter = self,
                 .done = false,
+            };
+        }
+
+        pub fn cycle(self: Self) Cycle(Self) {
+            return .{
+                .original = self,
+                .current = self,
             };
         }
 
@@ -217,18 +237,13 @@ pub fn Iterator(comptime S: type) type {
 }
 
 fn Map(comptime Iter: type, comptime fun: anytype) type {
-    const ftype = @TypeOf(fun);
-    const info = @typeInfo(ftype);
-    if (info != .Fn) {
-        @compileError(@typeName(ftype) ++ " is not a function");
-    }
-    const ReturnType = info.Fn.return_type.?;
+    const T = ReturnType(fun);
 
     return struct {
         iter: Iter,
 
         const Self = @This();
-        const Item = ReturnType;
+        const Item = T;
 
         pub fn next(self: *Self) ?Item {
             if (self.iter.next()) |item| {
@@ -407,23 +422,18 @@ fn StepBy(comptime Iter: type) type {
 }
 
 fn FilterMap(comptime Iter: type, comptime predicate: anytype) type {
-    const ftype = @TypeOf(predicate);
-    const info = @typeInfo(ftype);
-    if (info != .Fn) {
-        @compileError(@typeName(ftype) ++ " is not a function");
-    }
-    const rtype = info.Fn.return_type.?;
+    const rtype = ReturnType(predicate);
     const rinfo = @typeInfo(rtype);
     if (rinfo != .Optional) {
         @compileError(@typeName(rtype) ++ "is not an optional value");
     }
-    const ReturnType = rinfo.Optional.child;
+    const T = rinfo.Optional.child;
 
     return struct {
         iter: Iter,
 
         const Self = @This();
-        const Item = ReturnType;
+        const Item = T;
 
         pub fn next(self: *Self) ?Item {
             while (self.iter.next()) |item| {
@@ -480,6 +490,29 @@ fn SkipWhile(comptime Iter: type, comptime predicate: Iter.Predicate) type {
                 }
             }
             return self.iter.next();
+        }
+
+        pub usingnamespace Iterator(Self);
+    };
+}
+
+fn Cycle(comptime Iter: type) type {
+    return struct {
+        original: Iter,
+        current: Iter,
+
+        const Self = @This();
+        const Item = Iter.Item;
+
+        pub fn next(self: *Self) ?Item {
+            if (self.current.next()) |item| {
+                return item;
+            }
+            self.current = self.original;
+            if (self.current.next()) |item| {
+                return item;
+            }
+            return null;
         }
 
         pub usingnamespace Iterator(Self);

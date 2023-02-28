@@ -182,6 +182,11 @@ test "testing repeat" {
     numbers.deinit();
 }
 
+test "testing cycle" {
+    var numbers = try Range.init(0, 3).cycle().take(6).collect(allocator);
+    try expectEqualSlices(usize, numbers.items, &[_]usize{ 0, 1, 2, 0, 1, 2 });
+    numbers.deinit();
+}
 
 /// UTILITY FUNCTIONS
 pub const Range = struct {
