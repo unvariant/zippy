@@ -11,7 +11,7 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    const lib = b.addStaticLibrary("iter", "src/iter.zig");
+    const lib = b.addStaticLibrary("zippy", "src/zippy.zig");
     lib.setBuildMode(mode);
     lib.install();
 
@@ -21,4 +21,12 @@ pub fn build(b: *std.build.Builder) void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&tests.step);
+
+    const docs = b.addStaticLibrary("zippy", "src/zippy.zig");
+    docs.emit_docs = .{
+        .emit_to = "docs",
+    };
+
+    const doc_step = b.step("docs", "Build the documentation");
+    doc_step.dependOn(&docs.step);
 }

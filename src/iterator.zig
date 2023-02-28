@@ -36,12 +36,13 @@ fn deref(item: anytype) @TypeOf(item) {
     }
 }
 
-pub fn Iterator(comptime S: type) type {
-    const Self = Deref(S);
+/// This function is used to derive the Iterator trait on structs that implement the Iterator interface
+pub fn Iterator(comptime It: type) type {
+    const Self = Deref(It);
     const Item = Self.Item;
 
     return struct {
-        pub const Predicate = fn (Item) bool;
+        pub const Predicate: type = fn (Item) bool;
 
         pub fn map(self: Self, comptime fun: anytype) Map(Self, fun) {
             return .{
