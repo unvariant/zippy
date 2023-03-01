@@ -42,10 +42,10 @@ fn deref(item: anytype) Deref(@TypeOf(item)) {
 /// const Range = struct {
 ///     start: usize,
 ///     end: usize,
-/// 
+///
 ///     const Self = @This();
 ///     pub const Item = usize;
-/// 
+///
 ///     pub fn next (self: *Self) ?Item {
 ///         if (self.start < self.end) {
 ///             defer self.start += 1;
@@ -53,7 +53,7 @@ fn deref(item: anytype) Deref(@TypeOf(item)) {
 ///         }
 ///         return null;
 ///     }
-/// 
+///
 ///     pub usingnamespace Iterator(Self);
 /// };
 /// ```
@@ -66,21 +66,21 @@ pub fn Iterator(comptime It: type) type {
 
         /// Takes a closure and creates an iterator which calls that
         /// closure on each item.
-        /// 
+        ///
         /// Transforms one iterator that returns items of type A into
         /// an iterator that returns items of type B.
-        /// 
+        ///
         /// ### Examples
         /// Converting each item from **usize** to **f32** and doubling them:
         /// ```
         /// const a = [_]usize{ 0, 1, 2, };
-        /// 
+        ///
         /// var it = iter(&a).map(struct {
         ///     fn fun (item: usize) f32 {
         ///         return @intToFloat(f32, item * 2);
         ///     }
         /// }.fun);
-        /// 
+        ///
         /// expectEqual(it.next(), 0.0);
         /// expectEqual(it.next(), 2.0);
         /// expectEqual(it.next(), 4.0);
@@ -93,18 +93,18 @@ pub fn Iterator(comptime It: type) type {
 
         /// Takes a predicate and produces an iterator that only
         /// returns items that satisfy the predicate.
-        /// 
+        ///
         /// ### Examples
         /// Filtering for only odd items:
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, 5, };
-        /// 
+        ///
         /// var it = iter(&a).filter(struct {
         ///     fn fun (item: usize) bool {
         ///         return item % 2 == 1;
         ///     }
         /// }.fun);
-        /// 
+        ///
         /// expectEqual(it.next(), 1);
         /// expectEqual(it.next(), 3);
         /// expectEqual(it.next(), 5);
@@ -116,17 +116,17 @@ pub fn Iterator(comptime It: type) type {
         }
 
         /// Creates an iterator that returns up to **amount** items.
-        /// 
+        ///
         /// **take(amount)** will return items until **amount** items have
         /// been returned or the underlying iterator runs out of items.
-        /// 
+        ///
         /// ### Examples
         /// Returning **amount** items:
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, 5, 6, };
-        /// 
+        ///
         /// var it = iter(&a).take(3);
-        /// 
+        ///
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
         /// expectEqual(it.next(), 2);
@@ -135,9 +135,9 @@ pub fn Iterator(comptime It: type) type {
         /// Number of items is less than **amount**:
         /// ```
         /// const a = [_]usize{ 0, 1, };
-        /// 
+        ///
         /// var it = iter(&a).take(3);
-        /// 
+        ///
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
         /// expectEqual(it.next(), null);
@@ -150,26 +150,26 @@ pub fn Iterator(comptime It: type) type {
         }
 
         /// Creates an iterator that skips the first **amount** items.
-        /// 
+        ///
         /// If **amount** is greater than or equal to the number of items
         /// in the underlying iterator, it is equivalent to an empty iterator.
-        /// 
+        ///
         /// ### Examples
         /// Skipping the first **amount** items:
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, };
-        /// 
+        ///
         /// var it = iter(&a).skip(3);
-        /// 
+        ///
         /// expectEqual(it.next(), 3);
         /// expectEqual(it.next(), 4);
         /// ```
         /// When **amount** is greater than or equal to the iterator length:
         /// ```
         /// const a = [_]usize{ 0, 1, };
-        /// 
+        ///
         /// var it = iter(&a).skip(3);
-        /// 
+        ///
         /// expectEqual(it.next(), null);
         /// ```
         pub fn skip(self: Self, amount: usize) Skip(Self) {
@@ -181,18 +181,18 @@ pub fn Iterator(comptime It: type) type {
 
         /// Creates an iterator that returns the items of the first iterator,
         /// then the items of the second iterator.
-        /// 
+        ///
         /// The both iterator's Item types must be the same, and is compile time
         /// checked for correctness.
-        /// 
+        ///
         /// ### Examples
         /// Chaining two iterators together:
         /// ```
         /// const a = [_]usize{ 0, 1, };
         /// const b = [_]usize{ 1, 2, };
-        /// 
+        ///
         /// var it = iter(&a).chain(iter(&b));
-        /// 
+        ///
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
         /// expectEqual(it.next(), 1);
@@ -207,15 +207,15 @@ pub fn Iterator(comptime It: type) type {
 
         /// Creates an iterator that returns items along with their index in
         /// the iterator.
-        /// 
+        ///
         /// The type returned is `std.meta.Tuple(&.{ usize, Item, })`.
-        /// 
+        ///
         /// ### Examples
         /// ```
         /// const a = [_]usize{ 3, 4, 5, };
-        /// 
+        ///
         /// var it = iter(&a).enumerate();
-        /// 
+        ///
         /// expectEqual(it.next(), { 0, 3, });
         /// expectEqual(it.next(), { 1, 4, });
         /// expectEqual(it.next(), { 2, 5, });
@@ -228,17 +228,17 @@ pub fn Iterator(comptime It: type) type {
         }
 
         /// Creates an iterator that returns tuples of values from each iterator.
-        /// 
+        ///
         /// The Item types of each iterator can be distinct, and `zip` will stop returning
         /// items once either iterator returns `null`.
-        /// 
+        ///
         /// ### Examples
         /// ```
         /// const a = [_]usize{ 0, 1, 2, };
         /// const b = [_]u8{ 'a', 'b', 'c', };
-        /// 
+        ///
         /// var it = iter(&a).zip(iter(&b));
-        /// 
+        ///
         /// expectEqual(it.next(), { 0, 'a', });
         /// expectEqual(it.next(), { 1, 'b', });
         /// expectEqual(it.next(), { 2, 'c', });

@@ -189,7 +189,11 @@ test "testing cycle" {
 }
 
 test "testing iter with slices" {
-    var a: [3]usize = [_]usize{ 0, 1, 2, };
+    var a: [3]usize = [_]usize{
+        0,
+        1,
+        2,
+    };
 
     var it = zippy.iter(&a).copied();
 

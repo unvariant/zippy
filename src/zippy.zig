@@ -5,7 +5,7 @@ const trait = std.meta.trait;
 
 pub const Iterator = @import("iterator.zig").Iterator;
 
-fn IterType (comptime T: type) type {
+fn IterType(comptime T: type) type {
     return switch (@typeInfo(T)) {
         .Pointer => |pinfo| switch (pinfo.size) {
             .One => switch (@typeInfo(pinfo.child)) {
