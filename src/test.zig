@@ -204,7 +204,7 @@ test "testing iter with slices" {
 }
 
 test "testing iter with integers" {
-    var it = zippy.iter(@as(usize, 10));
+    var it = zippy.iter(@as(usize, 10)).copied();
 
     try expectEqual(it.next(), 10);
     try expectEqual(it.next(), null);
