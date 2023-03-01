@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>zippy.zig - source view</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAgklEQVR4AWMYWuD7EllJIM4G4g4g5oIJ/odhOJ8wToOxSTXgNxDHoeiBMfA4+wGShjyYOCkG/IGqWQziEzYAoUAeiF9D5U+DxEg14DRU7jWIT5IBIOdCxf+A+CQZAAoopEB7QJwBCBwHiip8UYmRdrAlDpIMgApwQZNnNii5Dq0MBgCxxycBnwEd+wAAAABJRU5ErkJggg=="/>
+    <style>
+      body{
+        font-family: system-ui, -apple-system, Roboto, "Segoe UI", sans-serif;
+        margin: 0;
+        line-height: 1.5;
+      }
+
+      pre > code {
+        display: block;
+        overflow: auto;
+        line-height: normal;
+        margin: 0em;
+      }
+      .tok-kw {
+          color: #333;
+          font-weight: bold;
+      }
+      .tok-str {
+          color: #d14;
+      }
+      .tok-builtin {
+          color: #005C7A;
+      }
+      .tok-comment {
+          color: #545454;
+          font-style: italic;
+      }
+      .tok-fn {
+          color: #900;
+          font-weight: bold;
+      }
+      .tok-null {
+          color: #005C5C;
+      }
+      .tok-number {
+          color: #005C5C;
+      }
+      .tok-type {
+          color: #458;
+          font-weight: bold;
+      }
+      pre {
+        counter-reset: line;
+      }
+      pre .line:before {
+        counter-increment: line;
+        content: counter(line);
+        display: inline-block;
+        padding-right: 1em;
+        width: 2em;
+        text-align: right;
+        color: #999;
+      }
+      
+      .line {
+        width: 100%;
+        display: inline-block;
+      }
+      .line:target {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+        background: #fafafa;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body{
+            background:#222;
+            color: #ccc;
+        }
+        pre > code {
+            color: #ccc;
+            background: #222;
+            border: unset;
+        }
+        .line:target {
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+            background: #333;
+        }
+        .tok-kw {
+            color: #eee;
+        }
+        .tok-str {
+            color: #2e5;
+        }
+        .tok-builtin {
+            color: #ff894c;
+        }
+        .tok-comment {
+            color: #aa7;
+        }
+        .tok-fn {
+            color: #B1A0F8;
+        }
+        .tok-null {
+            color: #ff8080;
+        }
+        .tok-number {
+            color: #ff8080;
+        }
+        .tok-type {
+            color: #68f;
+        }
+      }
+    </style>
+</head>
+<body>
+<pre><code><span class="line" id="L1"><span class="tok-comment">//! Zippy is a iterator library for zig</span></span>
+<span class="line" id="L2"></span>
+<span class="line" id="L3"><span class="tok-kw">const</span> std = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;std&quot;</span>);</span>
+<span class="line" id="L4"><span class="tok-kw">const</span> trait = std.meta.trait;</span>
+<span class="line" id="L5"></span>
+<span class="line" id="L6"><span class="tok-kw">pub</span> <span class="tok-kw">const</span> Iterator = <span class="tok-builtin">@import</span>(<span class="tok-str">&quot;iterator.zig&quot;</span>).Iterator;</span>
+<span class="line" id="L7"></span>
+<span class="line" id="L8"><span class="tok-kw">fn</span> <span class="tok-fn">IterType</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L9">    <span class="tok-kw">return</span> <span class="tok-kw">switch</span> (<span class="tok-builtin">@typeInfo</span>(T)) {</span>
+<span class="line" id="L10">        .Pointer =&gt; |pinfo| <span class="tok-kw">switch</span> (pinfo.size) {</span>
+<span class="line" id="L11">            .One =&gt; <span class="tok-kw">switch</span> (<span class="tok-builtin">@typeInfo</span>(pinfo.child)) {</span>
+<span class="line" id="L12">                .Array =&gt; |info| Slice(info.child),</span>
+<span class="line" id="L13">                <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;cannot provide iterator for &quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot; please implement custom iterator&quot;</span>),</span>
+<span class="line" id="L14">            },</span>
+<span class="line" id="L15">            .Slice =&gt; Slice(pinfo.child),</span>
+<span class="line" id="L16">            <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;cannot provide iterator for &quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot; please implement custom iterator&quot;</span>),</span>
+<span class="line" id="L17">        },</span>
+<span class="line" id="L18">        .Array =&gt; |info| Slice(info.child),</span>
+<span class="line" id="L19">        .Int, .Float, .Bool, .Optional, .Enum =&gt; Once(T),</span>
+<span class="line" id="L20">        <span class="tok-kw">else</span> =&gt; <span class="tok-builtin">@compileError</span>(<span class="tok-str">&quot;cannot provide iterator for &quot;</span> ++ <span class="tok-builtin">@typeName</span>(T) ++ <span class="tok-str">&quot; please implement custom iterator&quot;</span>),</span>
+<span class="line" id="L21">    };</span>
+<span class="line" id="L22">}</span>
+<span class="line" id="L23"></span>
+<span class="line" id="L24"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">iter</span>(init: <span class="tok-kw">anytype</span>) IterType(<span class="tok-builtin">@TypeOf</span>(init)) {</span>
+<span class="line" id="L25">    <span class="tok-kw">return</span> IterType(<span class="tok-builtin">@TypeOf</span>(init)).init(init);</span>
+<span class="line" id="L26">}</span>
+<span class="line" id="L27"></span>
+<span class="line" id="L28"><span class="tok-kw">fn</span> <span class="tok-fn">Slice</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L29">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L30">        slice: []<span class="tok-kw">const</span> T,</span>
+<span class="line" id="L31">        index: <span class="tok-type">usize</span>,</span>
+<span class="line" id="L32"></span>
+<span class="line" id="L33">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L34">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> Item = *<span class="tok-kw">const</span> T;</span>
+<span class="line" id="L35"></span>
+<span class="line" id="L36">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(slice: []<span class="tok-kw">const</span> T) Self {</span>
+<span class="line" id="L37">            <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L38">                .slice = slice,</span>
+<span class="line" id="L39">                .index = <span class="tok-number">0</span>,</span>
+<span class="line" id="L40">            };</span>
+<span class="line" id="L41">        }</span>
+<span class="line" id="L42"></span>
+<span class="line" id="L43">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">next</span>(self: *Self) ?Item {</span>
+<span class="line" id="L44">            <span class="tok-kw">if</span> (self.index &lt; self.slice.len) {</span>
+<span class="line" id="L45">                <span class="tok-kw">defer</span> self.index += <span class="tok-number">1</span>;</span>
+<span class="line" id="L46">                <span class="tok-kw">return</span> &amp;self.slice[self.index];</span>
+<span class="line" id="L47">            }</span>
+<span class="line" id="L48">            <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L49">        }</span>
+<span class="line" id="L50"></span>
+<span class="line" id="L51">        <span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> Iterator(Self);</span>
+<span class="line" id="L52">    };</span>
+<span class="line" id="L53">}</span>
+<span class="line" id="L54"></span>
+<span class="line" id="L55"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">empty</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) Empty(T) {</span>
+<span class="line" id="L56">    <span class="tok-kw">return</span> .{};</span>
+<span class="line" id="L57">}</span>
+<span class="line" id="L58"></span>
+<span class="line" id="L59"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">once</span>(item: <span class="tok-kw">anytype</span>) Once(<span class="tok-builtin">@TypeOf</span>(item)) {</span>
+<span class="line" id="L60">    <span class="tok-kw">return</span> Once(<span class="tok-builtin">@TypeOf</span>(item)).init(item);</span>
+<span class="line" id="L61">}</span>
+<span class="line" id="L62"></span>
+<span class="line" id="L63"><span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">repeat</span>(item: <span class="tok-kw">anytype</span>) Repeat(<span class="tok-builtin">@TypeOf</span>(item)) {</span>
+<span class="line" id="L64">    <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L65">        .item = item,</span>
+<span class="line" id="L66">    };</span>
+<span class="line" id="L67">}</span>
+<span class="line" id="L68"></span>
+<span class="line" id="L69"><span class="tok-kw">fn</span> <span class="tok-fn">Empty</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L70">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L71">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L72">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> Item = T;</span>
+<span class="line" id="L73"></span>
+<span class="line" id="L74">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">next</span>(self: *Self) ?Item {</span>
+<span class="line" id="L75">            _ = self;</span>
+<span class="line" id="L76">            <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L77">        }</span>
+<span class="line" id="L78"></span>
+<span class="line" id="L79">        <span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> Iterator(Self);</span>
+<span class="line" id="L80">    };</span>
+<span class="line" id="L81">}</span>
+<span class="line" id="L82"></span>
+<span class="line" id="L83"><span class="tok-kw">fn</span> <span class="tok-fn">Once</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L84">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L85">        item: T,</span>
+<span class="line" id="L86">        done: <span class="tok-type">bool</span>,</span>
+<span class="line" id="L87"></span>
+<span class="line" id="L88">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L89">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> Item = T;</span>
+<span class="line" id="L90"></span>
+<span class="line" id="L91">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">init</span>(item: T) Self {</span>
+<span class="line" id="L92">            <span class="tok-kw">return</span> .{</span>
+<span class="line" id="L93">                .item = item,</span>
+<span class="line" id="L94">                .done = <span class="tok-null">false</span>,</span>
+<span class="line" id="L95">            };</span>
+<span class="line" id="L96">        }</span>
+<span class="line" id="L97"></span>
+<span class="line" id="L98">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">next</span>(self: *Self) ?Item {</span>
+<span class="line" id="L99">            <span class="tok-kw">if</span> (self.done) {</span>
+<span class="line" id="L100">                <span class="tok-kw">return</span> <span class="tok-null">null</span>;</span>
+<span class="line" id="L101">            }</span>
+<span class="line" id="L102">            <span class="tok-kw">defer</span> self.done = <span class="tok-null">true</span>;</span>
+<span class="line" id="L103">            <span class="tok-kw">return</span> self.item;</span>
+<span class="line" id="L104">        }</span>
+<span class="line" id="L105"></span>
+<span class="line" id="L106">        <span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> Iterator(Self);</span>
+<span class="line" id="L107">    };</span>
+<span class="line" id="L108">}</span>
+<span class="line" id="L109"></span>
+<span class="line" id="L110"><span class="tok-kw">fn</span> <span class="tok-fn">Repeat</span>(<span class="tok-kw">comptime</span> T: <span class="tok-type">type</span>) <span class="tok-type">type</span> {</span>
+<span class="line" id="L111">    <span class="tok-kw">return</span> <span class="tok-kw">struct</span> {</span>
+<span class="line" id="L112">        item: T,</span>
+<span class="line" id="L113"></span>
+<span class="line" id="L114">        <span class="tok-kw">const</span> Self = <span class="tok-builtin">@This</span>();</span>
+<span class="line" id="L115">        <span class="tok-kw">pub</span> <span class="tok-kw">const</span> Item = T;</span>
+<span class="line" id="L116"></span>
+<span class="line" id="L117">        <span class="tok-kw">pub</span> <span class="tok-kw">fn</span> <span class="tok-fn">next</span>(self: *Self) ?Item {</span>
+<span class="line" id="L118">            <span class="tok-kw">return</span> self.item;</span>
+<span class="line" id="L119">        }</span>
+<span class="line" id="L120"></span>
+<span class="line" id="L121">        <span class="tok-kw">pub</span> <span class="tok-kw">usingnamespace</span> Iterator(Self);</span>
+<span class="line" id="L122">    };</span>
+<span class="line" id="L123">}</span>
+<span class="line" id="L124"></span>
+</code></pre></body>
+</html>
