@@ -188,6 +188,24 @@ test "testing cycle" {
     numbers.deinit();
 }
 
+test "testing iter with slices" {
+    var a: [3]usize = [_]usize{ 0, 1, 2, };
+
+    var it = zippy.iter(&a).copied();
+
+    try expectEqual(it.next(), 0);
+    try expectEqual(it.next(), 1);
+    try expectEqual(it.next(), 2);
+    try expectEqual(it.next(), null);
+}
+
+test "testing iter with integers" {
+    var it = zippy.iter(@as(usize, 10));
+
+    try expectEqual(it.next(), 10);
+    try expectEqual(it.next(), null);
+}
+
 /// UTILITY FUNCTIONS
 pub const Range = struct {
     start: usize,

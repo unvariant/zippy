@@ -28,7 +28,7 @@ fn Deref(comptime T: type) type {
     }
 }
 
-fn deref(item: anytype) @TypeOf(item) {
+fn deref(item: anytype) Deref(@TypeOf(item)) {
     if (comptime trait.isSingleItemPtr(@TypeOf(item))) {
         return item.*;
     } else {
@@ -75,7 +75,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, 2, };
         /// 
-        /// var it = Iterator(&a).map(struct {
+        /// var it = iter(&a).map(struct {
         ///     fn fun (item: usize) f32 {
         ///         return @intToFloat(f32, item * 2);
         ///     }
@@ -99,7 +99,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, 5, };
         /// 
-        /// var it = Iterator(&a).filter(struct {
+        /// var it = iter(&a).filter(struct {
         ///     fn fun (item: usize) bool {
         ///         return item % 2 == 1;
         ///     }
@@ -125,7 +125,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, 5, 6, };
         /// 
-        /// var it = Iterator(&a).take(3);
+        /// var it = iter(&a).take(3);
         /// 
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
@@ -136,7 +136,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, };
         /// 
-        /// var it = Iterator(&a).take(3);
+        /// var it = iter(&a).take(3);
         /// 
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
@@ -159,7 +159,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, 2, 3, 4, };
         /// 
-        /// var it = Iterator(&a).skip(3);
+        /// var it = iter(&a).skip(3);
         /// 
         /// expectEqual(it.next(), 3);
         /// expectEqual(it.next(), 4);
@@ -168,7 +168,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 0, 1, };
         /// 
-        /// var it = Iterator(&a).skip(3);
+        /// var it = iter(&a).skip(3);
         /// 
         /// expectEqual(it.next(), null);
         /// ```
@@ -191,7 +191,7 @@ pub fn Iterator(comptime It: type) type {
         /// const a = [_]usize{ 0, 1, };
         /// const b = [_]usize{ 1, 2, };
         /// 
-        /// var it = Iterator(&a).chain(Iterator(&b));
+        /// var it = iter(&a).chain(iter(&b));
         /// 
         /// expectEqual(it.next(), 0);
         /// expectEqual(it.next(), 1);
@@ -214,7 +214,7 @@ pub fn Iterator(comptime It: type) type {
         /// ```
         /// const a = [_]usize{ 3, 4, 5, };
         /// 
-        /// var it = Iterator(&a).enumerate();
+        /// var it = iter(&a).enumerate();
         /// 
         /// expectEqual(it.next(), { 0, 3, });
         /// expectEqual(it.next(), { 1, 4, });
@@ -237,7 +237,7 @@ pub fn Iterator(comptime It: type) type {
         /// const a = [_]usize{ 0, 1, 2, };
         /// const b = [_]u8{ 'a', 'b', 'c', };
         /// 
-        /// var it = Iterator(&a).zip(Iterator(&b));
+        /// var it = iter(&a).zip(iter(&b));
         /// 
         /// expectEqual(it.next(), { 0, 'a', });
         /// expectEqual(it.next(), { 1, 'b', });
@@ -281,6 +281,12 @@ pub fn Iterator(comptime It: type) type {
             return .{
                 .original = self,
                 .current = self,
+            };
+        }
+
+        pub fn copied(self: Self) Copied(Self) {
+            return .{
+                .iter = self,
             };
         }
 
@@ -671,6 +677,24 @@ fn Cycle(comptime Iter: type) type {
             self.current = self.original;
             if (self.current.next()) |item| {
                 return item;
+            }
+            return null;
+        }
+
+        pub usingnamespace Iterator(Self);
+    };
+}
+
+fn Copied(comptime Iter: type) type {
+    return struct {
+        iter: Iter,
+
+        const Self = @This();
+        pub const Item = Deref(Iter.Item);
+
+        pub fn next(self: *Self) ?Item {
+            if (self.iter.next()) |item| {
+                return deref(item);
             }
             return null;
         }
